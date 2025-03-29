@@ -4,38 +4,12 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>个人主页</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
     * {
       margin: 0;
       padding: 0;
       box-sizing: border-box;
-    }
-
-    .upload-button {
-      position: absolute;
-      bottom: -10px;
-      right: -10px;
-      background: white;
-      border-radius: 50%;
-      width: 40px;
-      height: 40px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-      transition: all 0.3s ease;
-    }
-
-    .upload-button:hover {
-      transform: scale(1.1);
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-    }
-
-    .profile-container {
-      position: relative;
-      display: inline-block;
-      margin-bottom: 1rem;
     }
 
     body {
@@ -54,54 +28,61 @@
       width: 90%;
     }
 
+    .profile-container {
+      position: relative;
+      display: inline-block;
+      margin-bottom: 1.5rem;
+    }
+
+    /* 关键修改：移除冲突的background-image */
     .profile-img {
       width: 150px;
       height: 150px;
       border-radius: 50%;
-      margin-bottom: 1rem;
+      object-fit: cover;
       border: 3px solid white;
-      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-      background-image: url('assets/profile-avatar.svg');
-      background-size: cover;
-      background-position: center;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
     }
 
     .username {
-      color: #333;
-      font-size: 1.5rem;
+      font-size: 1.8rem;
       margin-bottom: 0.5rem;
+      color: #333;
+      font-weight: 600;
     }
 
     .welcome-text {
       color: #555;
       margin-bottom: 2rem;
+      font-size: 1.1rem;
     }
 
     .links {
       display: flex;
       flex-direction: column;
       gap: 1rem;
+      margin-bottom: 2rem;
     }
 
     .link-button {
-      background: rgba(255, 255, 255, 0.9);
-      padding: 1.2rem 1.5rem;
-      border-radius: 20px;
+      background: rgba(255, 255, 255, 0.95);
+      padding: 1rem 1.5rem;
+      border-radius: 12px;
       text-decoration: none;
       color: #333;
       font-weight: 500;
       transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+      border: 1px solid rgba(0, 0, 0, 0.05);
     }
 
     .link-button:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+      transform: translateY(-3px);
+      box-shadow: 0 10px 20px -5px rgba(0, 0, 0, 0.15);
       background: white;
     }
 
     .social-icons {
-      margin-top: 2rem;
       display: flex;
       justify-content: center;
       gap: 1.5rem;
@@ -111,42 +92,59 @@
       color: #333;
       text-decoration: none;
       font-size: 1.5rem;
-      transition: transform 0.3s ease;
+      transition: all 0.3s ease;
+      width: 40px;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.8);
     }
 
     .social-icons a:hover {
-      transform: scale(1.2);
+      transform: scale(1.15);
+      color: #f78888;
+      background: white;
+    }
+
+    @media (max-width: 480px) {
+      .profile-img {
+        width: 120px;
+        height: 120px;
+      }
+      .link-button {
+        padding: 0.9rem;
+      }
     }
   </style>
-  <script src="https://kit.fontawesome.com/your-kit-code.js" crossorigin="anonymous"></script>
 </head>
 <body>
   <div class="container">
     <div class="profile-container">
-      <img src="https://avatars.githubusercontent.com/u/583231?v=4" alt="Profile" class="profile-img">
+      <!-- 关键修改：使用带缓存清除参数的图片URL -->
+      <img src="avatar.png?t=20240329" alt="我的头像" class="profile-img">
     </div>
     <h1 class="username">@sikai</h1>
     <p class="welcome-text">Hi! Welcome to my world!</p>
     
     <div class="links">
-      <a href="https://www.facebook.com/skwang99" class="link-button">Facebook</a>
-      <a href="https://www.instagram.com/sikai_xyz?igsh=OXc1eXNtYTBkN3Fi&utm_source=qr" class="link-button">Instagram</a>
-      <a href="https://chat.whatsapp.com/BWE87VrWjwuBSpYByHE9wH" class="link-button">TradingRoom</a>
+      <a href="https://www.facebook.com/skwang99" class="link-button" target="_blank" rel="noopener">
+        <i class="fab fa-facebook-f" style="margin-right: 8px;"></i> Facebook
+      </a>
+      <a href="https://www.instagram.com/sikai_xyz?igsh=OXc1eXNtYTBkN3Fi&utm_source=qr" class="link-button" target="_blank" rel="noopener">
+        <i class="fab fa-instagram" style="margin-right: 8px;"></i> Instagram
+      </a>
+      <a href="https://chat.whatsapp.com/BWE87VrWjwuBSpYByHE9wH" class="link-button" target="_blank" rel="noopener">
+        <i class="fab fa-whatsapp" style="margin-right: 8px;"></i> TradingRoom
+      </a>
     </div>
 
     <div class="social-icons">
-      <a href="https://www.facebook.com/skwang99"><i class="fab fa-facebook-f"></i></a>
-      <a href="https://www.instagram.com/sikai_xyz?igsh=OXc1eXNtYTBkN3Fi&utm_source=qr"><i class="fab fa-instagram"></i></a>
-      <a href="https://chat.whatsapp.com/BWE87VrWjwuBSpYByHE9wH"><i class="fab fa-whatsapp"></i></a>
+      <a href="https://www.facebook.com/skwang99" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
+      <a href="https://www.instagram.com/sikai_xyz?igsh=OXc1eXNtYTBkN3Fi&utm_source=qr" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+      <a href="https://chat.whatsapp.com/BWE87VrWjwuBSpYByHE9wH" aria-label="WhatsApp"><i class="fab fa-whatsapp"></i></a>
     </div>
   </div>
-  <script>
-    // 使用固定的头像链接
-    window.addEventListener('load', function() {
-      const profileImg = document.querySelector('.profile-img');
-      profileImg.style.backgroundImage = 'none';
-    });
-
-  </script>
 </body>
 </html>
