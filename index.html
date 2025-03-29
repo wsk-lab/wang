@@ -263,12 +263,14 @@
     }
     
     // 获取外汇数据（ExchangeRate-API）
-    async function fetchForexData() {
-      const res = await fetch(`https://v6.exchangerate-api.com/v6/${EXCHANGE_RATE_API_KEY}/latest/USD`);
-      const data = await res.json();
-      
-       // 计算1新西兰元兑换多少人民币 (1 NZD = ? CNY)
-      const nzdToCny = data.conversion_rates.CNY / data.conversion_rates.NZD;
+      async function fetchForexData() {
+  const res = await fetch(`https://v6.exchangerate-api.com/v6/${EXCHANGE_RATE_API_KEY}/latest/USD`);
+  const data = await res.json();
+  
+  // 计算 1新西兰元 = ?人民币 (1 NZD = ? CNY)
+  const nzdToCny = data.conversion_rates.CNY / data.conversion_rates.NZD;
+  // 直接获取 1新西兰元 = ?美元 (1 NZD = ? USD)
+  const nzdToUsd = data.conversion_rates.NZD; // 注意：API返回的是1USD=?NZD，所以1NZD=1/NZD_USD_rate
   
   return [
     {
@@ -278,6 +280,14 @@
       lastPrice: nzdToCny,
       priceChangePercent: 0,
       displayText: `新西兰元 = ${nzdToCny.toFixed(4)} 人民币`
+    },
+    {
+      symbol: 'NZDUSD',
+      name: '新西兰元',
+      type: 'forex',
+      lastPrice: nzdToUsd,
+      priceChangePercent: 0,
+      displayText: `新西兰元 = ${(1/nzdToUsd).toFixed(4)} 美元`
     }
   ];
 }
