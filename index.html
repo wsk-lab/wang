@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>💰🐮🤑💲</title>
+  <title>Monkey-k🤔</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
     * {
@@ -12,10 +12,69 @@
       box-sizing: border-box;
     }
 
+    /* 金融行情组件样式 - 已调整颜色以匹配主题 */
+    .ticker-bar {
+      background: linear-gradient(90deg, #f78888, #f3d250);
+      color: #333;
+      padding: 12px 0;
+      overflow: hidden;
+      position: relative;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      font-size: 14px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      width: 100%;
+    }
+    
+    .ticker-content {
+      display: inline-block;
+      white-space: nowrap;
+      animation: scroll 40s linear infinite;
+    }
+    
+    .ticker-item {
+      display: inline-block;
+      margin-right: 50px;
+      position: relative;
+      padding-left: 24px;
+      font-weight: 500;
+    }
+    
+    /* 资产类型图标 */
+    .ticker-item::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 16px;
+      height: 16px;
+      background-size: contain;
+      background-repeat: no-repeat;
+    }
+    
+    /* 外汇图标 */
+    .forex::before {
+      background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><path fill="%23f78888" d="M32 5A27 27 0 1 1 5 32 27 27 0 0 1 32 5zm0 5A22 22 0 1 0 54 32 22 22 0 0 0 32 10z"/></svg>');
+    }
+    
+    /* 加密货币图标 */
+    .crypto::before {
+      background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><circle fill="%23f3d250" cx="32" cy="32" r="16"/></svg>');
+    }
+    
+    .price-up { color: #0ecb81; }
+    .price-down { color: #f6465d; }
+    
+    @keyframes scroll {
+      0% { transform: translateX(0); }
+      100% { transform: translateX(-50%); }
+    }
+
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
       min-height: 100vh;
       display: flex;
+      flex-direction: column;
       justify-content: center;
       align-items: center;
       background: linear-gradient(45deg, #f3d250, #f78888);
@@ -26,6 +85,7 @@
       padding: 2rem;
       max-width: 600px;
       width: 90%;
+      margin-top: 20px;
     }
 
     .profile-container {
@@ -34,7 +94,6 @@
       margin-bottom: 1.5rem;
     }
 
-    /* 关键修改：移除冲突的background-image */
     .profile-img {
       width: 150px;
       height: 150px;
@@ -116,13 +175,22 @@
       .link-button {
         padding: 0.9rem;
       }
+      .ticker-item {
+        margin-right: 30px;
+      }
     }
   </style>
 </head>
 <body>
+  <!-- 顶部金融行情组件 -->
+  <div class="ticker-bar" id="crypto-ticker">
+    <div class="ticker-content" id="ticker-content">
+      <!-- 数据将通过JS动态加载 -->
+    </div>
+  </div>
+
   <div class="container">
     <div class="profile-container">
-      <!-- 关键修改：使用带缓存清除参数的图片URL -->
       <img src="avatar.png?t=20240329" alt="我的头像" class="profile-img">
     </div>
     <h1 class="username">@sikai</h1>
@@ -146,5 +214,125 @@
       <a href="https://chat.whatsapp.com/BWE87VrWjwuBSpYByHE9wH" aria-label="WhatsApp"><i class="fab fa-whatsapp"></i></a>
     </div>
   </div>
+
+  <script>
+    // 配置API密钥（建议在实际使用时通过后端代理隐藏密钥）
+    const EXCHANGE_RATE_API_KEY = 'd1b95aaf85b86f920dad70bb';
+    
+    // 资产配置
+    const assets = [
+      { type: 'crypto', symbol: 'BTCUSDT', name: '比特币' },
+      { type: 'crypto', symbol: 'ETHUSDT', name: '以太坊' },
+      { type: 'crypto', symbol: 'SOLUSDT', name: 'Solana' },
+      { type: 'crypto', symbol: 'XRPUSDT', name: 'XRP' },
+      { type: 'crypto', symbol: 'WLDUSDT', name: 'Worldcoin' },
+      { type: 'forex',  symbol: 'NZD',    name: '新西兰元' }
+    ];
+
+    // 获取所有市场数据
+    async function fetchMarketData() {
+      try {
+        const [cryptoData, forexData] = await Promise.all([
+          fetchCryptoData(),
+          fetchForexData()
+        ]);
+        
+        updateTicker([...cryptoData, ...forexData]);
+      } catch (error) {
+        console.error('数据获取失败:', error);
+        showFallbackData();
+      }
+    }
+    
+    // 获取加密货币数据（币安API）
+    async function fetchCryptoData() {
+      const promises = assets
+        .filter(a => a.type === 'crypto')
+        .map(async asset => {
+          const res = await fetch(`https://api.binance.com/api/v3/ticker/24hr?symbol=${asset.symbol}`);
+          const data = await res.json();
+          return {
+            symbol: asset.symbol,
+            name: asset.name,
+            type: asset.type,
+            lastPrice: parseFloat(data.lastPrice),
+            priceChangePercent: parseFloat(data.priceChangePercent)
+          };
+        });
+      return Promise.all(promises);
+    }
+    
+    // 获取外汇数据（ExchangeRate-API）
+    async function fetchForexData() {
+      const res = await fetch(`https://v6.exchangerate-api.com/v6/${EXCHANGE_RATE_API_KEY}/latest/USD`);
+      const data = await res.json();
+      
+       // 计算1新西兰元兑换多少人民币 (1 NZD = ? CNY)
+      const nzdToCny = data.conversion_rates.CNY / data.conversion_rates.NZD;
+  
+  return [
+    {
+      symbol: 'NZDCYN',
+      name: '新西兰元',
+      type: 'forex',
+      lastPrice: nzdToCny,
+      priceChangePercent: 0,
+      displayText: `新西兰元 = ${nzdToCny.toFixed(4)} 人民币`
+    }
+  ];
+}
+    
+    // 显示备用数据
+    function showFallbackData() {
+      document.getElementById('ticker-content').innerHTML = `
+        <span class="ticker-item forex">1 新西兰元 = 0.6200 USD</span>
+        <span class="ticker-item forex">1 人民币 = 0.2200 新西兰元</span>
+        <span class="ticker-item crypto">比特币: $60,000.00</span>
+        <span class="ticker-item crypto">以太坊: $3,000.00</span>
+        <span class="ticker-item crypto">Solana: $150.00</span>
+        <span class="ticker-item crypto"> XRP: $0.50</span>
+        <span class="ticker-item crypto">Worldcoin: $2.00</span>
+      `.repeat(2);
+    }
+    
+    // 更新滚动内容
+    function updateTicker(data) {
+      const container = document.getElementById('ticker-content');
+      container.innerHTML = '';
+      
+      // 生成两套相同内容实现无缝滚动
+      for (let i = 0; i < 2; i++) {
+        data.forEach(item => {
+          const change = item.priceChangePercent || 0;
+          const changeClass = change >= 0 ? 'price-up' : 'price-down';
+          
+          // 外汇使用特殊显示格式
+          const displayContent = item.type === 'forex' ? 
+            item.displayText : 
+            `${item.name}: $${item.lastPrice.toFixed(item.lastPrice < 1 ? 4 : 2)}`;
+          
+          container.innerHTML += `
+            <span class="ticker-item ${item.type}">
+              ${displayContent}
+              ${change ? `<span class="${changeClass}">(${change.toFixed(2)}%)</span>` : ''}
+            </span>
+          `;
+        });
+      }
+    }
+    
+    // 初始加载 + 每5分钟刷新（ExchangeRate-API免费版限制）
+    fetchMarketData();
+    setInterval(fetchMarketData, 300000);
+    
+    // 鼠标悬停暂停动画
+    const ticker = document.getElementById('crypto-ticker');
+    ticker.addEventListener('mouseenter', () => {
+      document.getElementById('ticker-content').style.animationPlayState = 'paused';
+    });
+    ticker.addEventListener('mouseleave', () => {
+      document.getElementById('ticker-content').style.animationPlayState = 'running';
+    });
+  </script>
 </body>
 </html>
